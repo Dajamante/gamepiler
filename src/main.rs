@@ -1,24 +1,15 @@
 use log::info;
-use serde_json::{Result as SerdeResult, Value};
-use std::io::{self, BufRead};
+use std::process::Command;
 
 fn main() {
     env_logger::init();
     info!("Trying to read from another rust program");
-    let stdin = io::stdin();
-    for line in stdin.lock().lines() {
-        let line = line.expect("Reading from another program failed");
-        //println!("GAMEPILER 🍍 {:#?}", line);
-        if let Ok(v) = find_code_error(&line) {
-            println!("GAMEPILER 🍍: {}", v);
-        };
+    let output = Command::new("rustc")
+        .arg("/Users/aissata/Rust/RUSTBOOK/guessing_game/src/main.rs")
+        .output()
+        .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
+    if !output.status.success() {
+        let s = String::from_utf8_lossy(&output.stderr);
+        print!("GAMEPILER says 🍍: \n{}", s);
     }
-}
-
-fn find_code_error(line: &str) -> SerdeResult<Value> {
-    // Some JSON input data as a &str. Maybe this comes from the user.
-    // Parse the string of data into serde_json::Value.
-    let v: Value = serde_json::from_str(line)?;
-
-    Ok(v["message"]["rendered"].clone())
 }
