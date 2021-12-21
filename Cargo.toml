@@ -1,5 +1,5 @@
 [package]
-name = "gamepiler"
+name = "cargo-gamepiler"
 version = "0.1.0"
 description = "A gamifier for the rust compilator. Get rewards and achievements for making errors!"
 homepage = "https://github.com/Dajamante/gamepiler"
