@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use log::{info, warn};
 use std::collections::HashMap;
 use std::fs::File;
@@ -22,25 +23,28 @@ impl Stats {
         });
     }
 }
-fn load_from_file() -> Stats {
+fn load_from_file() -> Result<Stats> {
     if let Ok(error_file) = File::open(Path::new("error_file.json")) {
-        let error_map = serde_json::from_reader(&error_file).unwrap();
-        Stats { error_map }
+        let error_map = serde_json::from_reader(&error_file).context("Could not serialise.")?;
+        Ok(Stats { error_map })
     } else {
         warn!("The file error does not exist, are you sure?");
-        Stats::new()
+        Ok(Stats::new())
     }
 }
 
-fn save_to_file(stats: &Stats) {
+fn save_to_file(stats: &Stats) -> Result<()> {
     let error_file = OpenOptions::new()
         .write(true)
         .create(true)
         .append(false)
         .open("error_file.json")
-        .unwrap();
+        .context("Could not open error file")?;
 
-    let serialized = serde_json::to_writer(&error_file, &stats.error_map);
+    serde_json::to_writer(&error_file, &stats.error_map)
+        .context("Could not write to error file")?;
+
+    Ok(())
 }
 
 pub fn print_errors(stats: &Stats) {
@@ -50,10 +54,10 @@ pub fn print_errors(stats: &Stats) {
         .for_each(|(k, v)| println!("GAMEPILER: 🍍 You commited error {} {} times, yay!", k, v));
 }
 
-pub fn update_stats(compiler_errors: &Vec<String>) -> Stats {
-    let mut stats: Stats = load_from_file();
+pub fn update_stats(compiler_errors: &Vec<String>) -> Result<Stats> {
+    let mut stats: Stats = load_from_file()?;
     stats.update_errors(&compiler_errors);
     info!("Saving errors to permanent file.");
-    save_to_file(&stats);
-    stats
+    save_to_file(&stats)?;
+    Ok(stats)
 }
