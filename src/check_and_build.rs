@@ -3,17 +3,18 @@ use cargo_metadata::Message;
 use log::info;
 use std::process::{Command, Stdio};
 
-fn get_manifest_arg(path_to_manifest: &str) -> Result<String> {
-    ensure!(!path_to_manifest.is_empty());
-    Ok("--manifest-path=".to_string() + path_to_manifest)
-}
-pub fn parsing_errors(path_to_manifest: &str) -> Result<Vec<String>> {
+// fn get_manifest_arg(path_to_manifest: &str) -> Result<String> {
+//     ensure!(!path_to_manifest.is_empty());
+//     Ok("--manifest-path=".to_string() + path_to_manifest)
+// }
+//pub fn parsing_errors(path_to_manifest: &str) -> Result<Vec<String>> {
+pub fn parsing_errors() -> Result<Vec<String>> {
     info!("Trying to read from another rust program");
     let mut command = Command::new("cargo")
         .args(&[
             "check",
             "--message-format=json",
-            &get_manifest_arg(path_to_manifest).context("No path was found, check failed.")?,
+            //&get_manifest_arg(path_to_manifest).context("No path was found, check failed.")?,
         ])
         .stdout(Stdio::piped())
         .spawn()
@@ -42,13 +43,14 @@ pub fn parsing_errors(path_to_manifest: &str) -> Result<Vec<String>> {
     Ok(compiler_errors)
 }
 
-pub fn build(path_to_manifest: &str) -> Result<()> {
+//pub fn build(path_to_manifest: &str) -> Result<()> {
+pub fn build() -> Result<()> {
     info!("Building the file with `cargo build`");
 
     Command::new("cargo")
         .args(&[
             "build",
-            &get_manifest_arg(path_to_manifest).context("No path was found, build failed")?,
+            //&get_manifest_arg(path_to_manifest).context("No path was found, build failed")?,
         ])
         .stdout(Stdio::piped())
         .spawn()
