@@ -1,25 +1,15 @@
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result};
 use cargo_metadata::Message;
 use log::info;
 use std::process::{Command, Stdio};
 
-// fn get_manifest_arg(path_to_manifest: &str) -> Result<String> {
-//     ensure!(!path_to_manifest.is_empty());
-//     Ok("--manifest-path=".to_string() + path_to_manifest)
-// }
-//pub fn parsing_errors(path_to_manifest: &str) -> Result<Vec<String>> {
 pub fn parsing_errors() -> Result<Vec<String>> {
     info!("Trying to read from another rust program");
     let mut command = Command::new("cargo")
-        .args(&[
-            "check",
-            "--message-format=json",
-            //&get_manifest_arg(path_to_manifest).context("No path was found, check failed.")?,
-        ])
+        .args(&["check", "--message-format=json"])
         .stdout(Stdio::piped())
         .spawn()
-        //.context("Failed")?;
-        .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
+        .context("Failed to execute the check!")?;
 
     let mut compiler_errors: Vec<String> = Vec::new();
     let reader = std::io::BufReader::new(command.stdout.take().unwrap());
@@ -35,28 +25,21 @@ pub fn parsing_errors() -> Result<Vec<String>> {
             _ => {}
         }
     }
-    compiler_errors
-        .iter()
-        .for_each(|e| println!("GAMEPILER found error with code 🍍: {}", e));
 
     command.wait().expect("Couldn't get cargo's exit status");
     Ok(compiler_errors)
 }
 
-//pub fn build(path_to_manifest: &str) -> Result<()> {
 pub fn build() -> Result<()> {
     info!("Building the file with `cargo build`");
 
     Command::new("cargo")
-        .args(&[
-            "build",
-            //&get_manifest_arg(path_to_manifest).context("No path was found, build failed")?,
-        ])
+        .args(&["build"])
         .stdout(Stdio::piped())
         .spawn()
-        .unwrap_or_else(|e| panic!("failed to execute process: {}", e))
+        .context("Failed to execute build!")?
         .wait()
-        .expect("Couldn't get cargo's exit status");
+        .context("Couldn't get cargo's exit status")?;
 
     Ok(())
 }

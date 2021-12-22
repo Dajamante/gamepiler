@@ -1,5 +1,5 @@
 [package]
-name = "cargo-gamepiler"
+name = "cargo-gamepile"
 version = "0.1.0"
 description = "A gamifier for the rust compilator. Get rewards and achievements for making errors!"
 homepage = "https://github.com/Dajamante/gamepiler"
@@ -10,6 +10,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.51"
 cargo_metadata = "0.14.1"
+clap = "2.34.0"
+directories = "4.0.1"
 env_logger = "0.9.0"
+#inline-python = "0.8.0"
 log = "0.4.14"
+plotlib = "0.5.1"
 serde_json = "1.0.72"
