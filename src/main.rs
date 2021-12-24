@@ -20,9 +20,16 @@ fn main() -> Result<()> {
                 .takes_value(false)
                 .required(false),
         )
+        .arg(
+            Arg::with_name("xkcd")
+                .short("x")
+                .long("xkcd")
+                .help("Plots a graph in xkcd style")
+                .takes_value(false)
+                .required(false),
+        )
         .get_matches();
 
-    //println!("{:#?}", matches);
     info!("Parsing errors with `cargo check`");
     let compiler_errors = check_and_build::parsing_errors()?;
 
@@ -32,6 +39,9 @@ fn main() -> Result<()> {
     stats::print_errors(&stats);
     if matches.is_present("graph") {
         stats::graph(&stats);
+    };
+    if matches.is_present("xkcd") {
+        stats::graph_xkcd(&stats);
     };
     Ok(())
 }

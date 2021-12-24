@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
-//use inline_python::python;
+use inline_python::python;
 use log::{info, warn};
 use plotlib::page::Page;
 use plotlib::repr::{Histogram, HistogramBins};
@@ -78,10 +78,13 @@ pub fn update_stats(compiler_errors: &Vec<String>) -> Result<Stats> {
     Ok(stats)
 }
 pub fn graph(stats: &Stats) {
-    let new_stuff: Vec<f64> = stats.error_map.iter().map(|(_, e)| *e as f64).collect();
-    let bins = new_stuff.len();
-    println!("New stuff: {:#?}", new_stuff);
-    println!("Stats error map: {:#?}", stats.error_map);
+    let mut new_stuff: Vec<f64> = vec![];
+    for (_k, v) in &stats.error_map {
+        new_stuff.push(*v as f64);
+    }
+    // let bins = new_stuff.len();
+    // println!("New stuff: {:#?}", new_stuff);
+    // println!("Stats error map: {:#?}", stats.error_map);
     let h = Histogram::from_slice(&new_stuff[..], HistogramBins::Count(25));
     let v = ContinuousView::new()
         .add(h)
@@ -89,4 +92,29 @@ pub fn graph(stats: &Stats) {
         .y_label("Other thing");
 
     println!("{}", Page::single(&v).dimensions(50, 15).to_text().unwrap());
+}
+
+pub fn graph_xkcd(stats: &Stats) {
+    let error_map = stats.error_map.clone();
+    python! {
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        with plt.xkcd():
+            fig = plt.figure()
+            ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
+            labels = []
+            sizes = []
+
+            for x, y in 'error_map.items():
+                labels.append(x)
+                sizes.append(y)
+
+            # Plot
+            ax.pie(sizes, labels=labels)
+            fig.text(
+                0.5, 0.05,
+                "THE DAY I REALISED I COULD \n PLOT MY RUSTC ERRORS \\(^ ^)/", ha="center")
+            plt.show()
+    }
 }
