@@ -2,13 +2,16 @@ use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use inline_python::python;
 use log::{info, warn};
-use plotlib::page::Page;
-use plotlib::repr::{Histogram, HistogramBins};
-use plotlib::view::ContinuousView;
-use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::fs::OpenOptions;
+use plotlib::{
+    page::Page,
+    repr::{Histogram, HistogramBins},
+    view::ContinuousView,
+};
+use std::{
+    collections::{HashMap, HashSet},
+    fs::{self, File, OpenOptions},
+};
+
 pub struct Stats {
     error_map: HashMap<String, i32>,
 }
@@ -26,7 +29,7 @@ impl Stats {
             *stat += 1;
         });
     }
-    fn get_file_path() -> Result<std::path::PathBuf> {
+    fn get_file_path_errors() -> Result<std::path::PathBuf> {
         let proj_dirs =
             ProjectDirs::from("", "", "gamepile").context("Did not find a home directory.")?;
 
@@ -40,7 +43,7 @@ impl Stats {
 }
 
 fn load_from_file() -> Result<Stats> {
-    if let Ok(error_file) = File::open(Stats::get_file_path()?.as_path()) {
+    if let Ok(error_file) = File::open(Stats::get_file_path_errors()?.as_path()) {
         let error_map = serde_json::from_reader(&error_file).context("Could not serialise.")?;
         Ok(Stats { error_map })
     } else {
@@ -54,7 +57,7 @@ fn save_to_file(stats: &Stats) -> Result<()> {
         .write(true)
         .create(true)
         .append(false)
-        .open(Stats::get_file_path()?.as_path())
+        .open(Stats::get_file_path_errors()?.as_path())
         .context("Could not open error file shit")?;
 
     serde_json::to_writer(&error_file, &stats.error_map)
@@ -93,7 +96,16 @@ pub fn graph(stats: &Stats) {
 
     println!("{}", Page::single(&v).dimensions(50, 15).to_text().unwrap());
 }
-
+pub fn compiler_errors() {
+    let path = "/Users/aissata/Rust/gamepiler/compiler_error_categories.json".to_string();
+    if let Ok(error_file) = File::open(path) {
+        let error_map = serde_json::from_reader::<_, serde_json::Value>(&error_file)
+            .into_iter()
+            .map(|v| v.to_string())
+            .collect::<HashSet<String>>();
+        println!("{:#?}", error_map);
+    }
+}
 pub fn graph_xkcd(stats: &Stats) {
     let error_map = stats.error_map.clone();
     python! {

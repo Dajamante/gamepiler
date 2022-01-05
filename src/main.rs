@@ -35,7 +35,7 @@ fn main() -> Result<()> {
 
     let stats = stats::update_stats(&compiler_errors).context("Stats could not be compiled")?;
     check_and_build::build()?;
-
+    stats::compiler_errors();
     stats::print_errors(&stats);
     if matches.is_present("graph") {
         stats::graph(&stats);
