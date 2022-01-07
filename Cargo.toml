@@ -1,6 +1,7 @@
 [package]
 name = "cargo-gamepile"
 version = "0.1.0"
+authors = ["Ai Maiga aimaiga2@gmail.com", "Sasha Pourcelot sasha.pourcelot@protonmail.com"]
 description = "A gamifier for the rust compilator. Get rewards and achievements for making errors!"
 homepage = "https://github.com/Dajamante/gamepiler"
 edition = "2021"
