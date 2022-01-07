@@ -10,7 +10,9 @@ use plotlib::{
 use std::{
     collections::{HashMap, HashSet},
     fs::{self, File, OpenOptions},
+    include_str,
 };
+const ERROR_CATEGORIES: &str = include_str!("compiler_error_categories.json");
 
 pub struct Stats {
     error_map: HashMap<String, i32>,
@@ -38,7 +40,6 @@ impl Stats {
                 .context("Could not create gamepile directory!")?;
         }
         Ok(proj_dirs.data_local_dir().join("error_file.json"))
-        // "/Users/aissata/Rust/gamepiler/error_file.json".to_string()
     }
 }
 
@@ -85,9 +86,6 @@ pub fn graph(stats: &Stats) {
     for (_k, v) in &stats.error_map {
         new_stuff.push(*v as f64);
     }
-    // let bins = new_stuff.len();
-    // println!("New stuff: {:#?}", new_stuff);
-    // println!("Stats error map: {:#?}", stats.error_map);
     let h = Histogram::from_slice(&new_stuff[..], HistogramBins::Count(25));
     let v = ContinuousView::new()
         .add(h)
@@ -96,37 +94,54 @@ pub fn graph(stats: &Stats) {
 
     println!("{}", Page::single(&v).dimensions(50, 15).to_text().unwrap());
 }
-pub fn compiler_errors() {
-    let path = "/Users/aissata/Rust/gamepiler/compiler_error_categories.json".to_string();
-    if let Ok(error_file) = File::open(path) {
-        let error_map = serde_json::from_reader::<_, serde_json::Value>(&error_file)
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<HashSet<String>>();
-        println!("{:#?}", error_map);
-    }
+
+pub fn get_categories() -> HashMap<String, String> {
+    serde_json::from_str(ERROR_CATEGORIES).unwrap()
+}
+pub fn compiler_errors_categories() -> HashSet<String> {
+    let cat_map: HashMap<String, String> = get_categories();
+    let unique_categories = cat_map
+        .into_iter()
+        .map(|(_, v)| v)
+        //.unique_by(|(k, v)| v)
+        .collect::<HashSet<String>>();
+    unique_categories
 }
 pub fn graph_xkcd(stats: &Stats) {
     let error_map = stats.error_map.clone();
+    let categories = get_categories();
+    let mut freq: HashMap<String, i32> = HashMap::new();
+    for (k, _) in &error_map {
+        if let Some(k2) = categories.get(k) {
+            *freq.entry(k2.to_string()).or_default() += 1;
+        }
+    }
     python! {
         import matplotlib.pyplot as plt
         import numpy as np
 
         with plt.xkcd():
-            fig = plt.figure()
-            ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
-            labels = []
-            sizes = []
+            fig, (ax1, ax2) = plt.subplots(1,2)
+            fig.suptitle("THE DAY I REALISED I COULD \n PLOT MY RUSTC ERRORS \\(^ ^)/", ha="center")
+
+            labels1 = []
+            sizes1 = []
+            labels2 = []
+            sizes2 = []
 
             for x, y in 'error_map.items():
-                labels.append(x)
-                sizes.append(y)
+                labels1.append(x)
+                sizes1.append(y)
+            for x, y in 'freq.items():
+                labels2.append(x)
+                sizes2.append(y)
 
             # Plot
-            ax.pie(sizes, labels=labels)
-            fig.text(
-                0.5, 0.05,
-                "THE DAY I REALISED I COULD \n PLOT MY RUSTC ERRORS \\(^ ^)/", ha="center")
+            ax1.pie(sizes1, labels=labels1)
+            ax1.set_title("The said errors...")
+            ax2.pie(sizes2, labels=labels2)
+            ax2.set_title("... and what they mean.")
+
             plt.show()
     }
 }

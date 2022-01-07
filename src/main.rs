@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{crate_authors, App, Arg};
 use log::info;
 
 mod check_and_build;
@@ -10,20 +10,12 @@ fn main() -> Result<()> {
 
     let matches = App::new("Gamepiler 🍍")
         .version("1.0")
-        .about("Gives achievement for your errors!")
-        .author("Ai Maiga")
+        .author(crate_authors!("\n"))
+        .about("The Gamepiler gives achievement for your errors!")
         .arg(
             Arg::with_name("graph")
                 .short("g")
                 .long("graph")
-                .help("Plots a graph.")
-                .takes_value(false)
-                .required(false),
-        )
-        .arg(
-            Arg::with_name("xkcd")
-                .short("x")
-                .long("xkcd")
                 .help("Plots a graph in xkcd style")
                 .takes_value(false)
                 .required(false),
@@ -35,12 +27,9 @@ fn main() -> Result<()> {
 
     let stats = stats::update_stats(&compiler_errors).context("Stats could not be compiled")?;
     check_and_build::build()?;
-    stats::compiler_errors();
+    //stats::compiler_errors_categories();
     stats::print_errors(&stats);
     if matches.is_present("graph") {
-        stats::graph(&stats);
-    };
-    if matches.is_present("xkcd") {
         stats::graph_xkcd(&stats);
     };
     Ok(())
