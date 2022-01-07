@@ -19,4 +19,11 @@ Atm, you need to download the repository, compile it with nightly:
 `cargo +nightly install --path ./.`
 
 You can then go in another directory and run 
-`cargo-gamepile` to get a list of errors, or `cargo-gamepile --graph`for a graph which is incorrect atm (🙃) or `cargo-gamepile --xkcd` for an xkcd style graph that works.
+`cargo-gamepile` to get a list of errors, or `cargo-gamepile --graph`for a graph which is incorrect atm (🙃).
+
+The graph will end up looking with the errors you made so far, as well as their "category".
+
+![graph](graph.png)
+
+⚠️ Warning for huge work in progress!! ⚠️
+
