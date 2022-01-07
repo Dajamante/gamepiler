@@ -1,5 +1,6 @@
 /target
-*.json
 */target/*
 *target*
 Cargo.lock
+*Cargo.lock
+*.lock*
