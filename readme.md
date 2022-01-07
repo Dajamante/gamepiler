@@ -33,7 +33,7 @@ You can then go in another directory and run :
 - `cargo-gamepile -- --graph`for a graph which is incorrect atm (🙃).
 
 
-## How does it looks like
+## How does it look like
 
 The graph will end up looking with the errors you made so far, as well as their "category".
 
