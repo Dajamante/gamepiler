@@ -98,6 +98,8 @@ pub fn graph(stats: &Stats) {
 pub fn get_categories() -> HashMap<String, String> {
     serde_json::from_str(ERROR_CATEGORIES).unwrap()
 }
+
+// this is needed while researching how to classify categories!
 pub fn compiler_errors_categories() -> HashSet<String> {
     let cat_map: HashMap<String, String> = get_categories();
     let unique_categories = cat_map
@@ -119,28 +121,28 @@ pub fn graph_xkcd(stats: &Stats) {
     python! {
         import matplotlib.pyplot as plt
         import numpy as np
+        from matplotlib import colors
+        from matplotlib.pyplot import figure
+
 
         with plt.xkcd():
-            fig, (ax1, ax2) = plt.subplots(1,2)
+            fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2, figsize=(12,8))
             fig.suptitle("THE DAY I REALISED I COULD \n PLOT MY RUSTC ERRORS \\(^ ^)/", ha="center")
+            labels = []
+            sizes = []
 
-            labels1 = []
-            sizes1 = []
-            labels2 = []
-            sizes2 = []
-
-            for x, y in 'error_map.items():
-                labels1.append(x)
-                sizes1.append(y)
             for x, y in 'freq.items():
-                labels2.append(x)
-                sizes2.append(y)
+                labels.append(x)
+                sizes.append(y)
 
             # Plot
-            ax1.pie(sizes1, labels=labels1)
+            my_cmap = plt.get_cmap("viridis")
+            rescale = lambda y: (y - np.min(y)) / (np.max(y) - np.min(y))
+
+            ax1.bar('error_map.keys(), 'error_map.values(), color = my_cmap(rescale(list('error_map.values()))))
             ax1.set_title("The said errors...")
-            ax2.pie(sizes2, labels=labels2)
-            ax2.set_title("... and what they mean.")
+            ax2.pie(sizes, labels=labels)
+            ax2.set_title("... and what they \"mean\"\n. Sort of.")
 
             plt.show()
     }
