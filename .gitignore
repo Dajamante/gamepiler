@@ -2,3 +2,4 @@
 *.json
 */target/*
 *target*
+Cargo.lock
