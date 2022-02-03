@@ -33,13 +33,17 @@ You can then go in another directory and run :
 - `cargo-gamepile -- --graph`for a graph which is incorrect atm (🙃).
 
 
+
 ## How does it look like
 
 The graph will end up looking with the errors you made so far, as well as their "category".
+
+
 
 The `rustc` error category file has been generously gifted by [Félix Saparelli](https://github.com/passcod) and is available [here](https://gist.github.com/passcod/d31ddd1b81b0d3874ac64a4b300f51ca)!
 
 ![graph](graph.png)
 
-⚠️ Warning for huge work in progress!! ⚠️
+⚠️ Warning for huge work in progress!! ⚠️ Errors still need to be analyzed to be useful to you.
+
 
