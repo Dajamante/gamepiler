@@ -44,6 +44,5 @@ The `rustc` error category file has been generously gifted by [Félix Saparelli]
 
 ![graph](graph.png)
 
-⚠️ Warning for huge work in progress!! ⚠️
-
+### Warning for huge work in progress!!
 
